@@ -1,0 +1,63 @@
+.catFlex {
+    display: flex;
+    position: relative;
+    gap: 20px;
+    /* width: inherit; */
+}
+
+.vcmx {
+    position: relative;
+    width: inherit;
+    padding: 8px 10px;
+    border: 1px solid grey;
+    background-color: rgba(0, 0, 0, 0.087);
+    border-radius: 20px;
+    /* margin: 15px 10px; */
+    font-size: 14px;
+    /* white-space: nowrap; */
+    z-index: 2000;
+
+}
+
+.cvdisBi {
+    display: block;
+}
+.nmqpl {
+    width: inherit;
+}
+.cvdisSm {
+    display: none;
+}
+
+@media screen and (max-width: 884px) {
+    .catFlex {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .vcmx {
+        position: absolute;
+        width: 97%;
+        background-color: rgb(221, 221, 221);
+        height: 400px;
+        overflow-y: scroll;
+        overflow-x: hidden;
+    }
+
+    .cvdisBi {
+        display: none;
+    }
+    .nmqpl {
+        width: inherit;
+        position: relative;
+    }
+    .cvdisSm {
+        display: flex;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    .vcmx {
+        width: 94%;
+    }
+}

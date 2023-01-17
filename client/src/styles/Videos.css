@@ -1,0 +1,194 @@
+.vidDis {
+    width: inherit;
+    display: flex;
+    justify-content: space-between;
+}
+
+.side1 {
+    width: 67.5%;
+}
+
+.side2 {
+    width: 30%;
+}
+
+.vid {
+    width: 100%;
+    height: 510px;
+    object-fit: cover;
+}
+
+.ttt {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.wrapperX {
+    display: flex;
+    width: inherit;
+    height: auto;
+    flex-wrap: wrap;
+}
+
+.wrapX {
+    transition: all 0.5s;
+}
+
+.wrapX:hover .bbtxt {
+    color: rgb(26, 115, 232)
+}
+
+@media screen and (max-width: 2340px) {
+    .wrapX {
+        width: 31.619%;
+        margin-bottom: 30px;
+        margin-right: 2.57%;
+        transition: all 0.5s;
+    }
+
+    .wrapX:nth-child(3n) {
+        margin-right: 0px;
+    }
+}
+
+/* @media screen and (max-width: 1339px) {
+    .wrapX {
+        width: 31.619%;
+        margin-bottom: 30px;
+        margin-right: 2.5%;
+    }
+
+    .wrapX:nth-child(3n) {
+        margin-right: 0px;
+    }
+} */
+
+.thdf {
+    display: flex;
+}
+
+.vidffd {
+    width: 100%;
+    height: 100px;
+}
+
+.hfv {
+    margin-right: 10px;
+}
+
+@media screen and (max-width: 1105px) {
+    .wrapperX {
+        justify-content: space-between;
+    }
+
+    .wrapX {
+        width: 48.15%;
+        margin-bottom: 30px;
+        /* margin-right: 3.5%; */
+    }
+
+    .wrapX:nth-child(2n) {
+        margin-right: 0px;
+    }
+
+    .thdf {
+        display: block;
+    }
+
+    .vidffd {
+        width: 100%;
+        height: 130px;
+    }
+
+    .hfv {
+        margin-right: 0px;
+    }
+}
+
+@media screen and (max-width: 580px) {
+    .wrapperX {
+        justify-content: space-between;
+    }
+
+    .wrapX {
+        width: inherit;
+        margin-bottom: 30px;
+        /* margin-right: 3.5%; */
+    }
+
+    .wrapX:nth-child(1n) {
+        margin-right: 0px;
+    }
+}
+
+
+@media screen and (max-width: 940px) {
+    .vidDis {
+        display: block;
+    }
+
+    .vid {
+        width: 100%;
+        height: 480px;
+        object-fit: cover;
+    }
+
+    .side1 {
+        width: 100%;
+    }
+
+    .side2 {
+        width: 100%;
+    }
+
+    .lopd {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .vidffd {
+        width: 100%;
+        height: 160px;
+    }
+
+    .thdf {
+        width: 48%;
+        margin-bottom: 30px;
+        margin-right: 4%;
+    }
+
+    .thdf:nth-child(2n) {
+        margin-right: 0px;
+    }
+
+}
+
+.plgr {
+    display: flex;
+}
+
+@media screen and (max-width: 500px) {
+    .vid {
+        width: 100%;
+        height: 420px;
+        object-fit: cover;
+    }
+    .plgr {
+        display: block;
+    }
+}
+
+
+.moreVV {
+    width: min-content;
+    padding: 0px 15px;
+    background-color: rgb(239, 240, 247);
+    white-space: nowrap;
+    position: absolute;
+    top: -10px;
+    left: 0px;
+    right: 0px;
+    margin: auto;
+    cursor: pointer;
+}
