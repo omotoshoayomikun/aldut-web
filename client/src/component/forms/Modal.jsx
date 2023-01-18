@@ -44,7 +44,7 @@ export function SuccessModal({ text, handleOk }) {
 }
 
 
-export const Pre = () => {
+export const Pre = ({data}) => {
     return (
         <>
             <div className='modalCont'>
@@ -54,15 +54,15 @@ export const Pre = () => {
                     <div>
                         <div className="d-f a-i j-cc mb-1">
                             <div className='mr-1 fw-1'>Total Data:</div>
-                            <div className='mr-1 '>5</div>
+                            <div className='mr-1 '>{data.total}</div>
                         </div>
                         <div className="d-f a-i j-cc mb-1">
                             <div className='mr-1 fw-1'>Data to upload:</div>
-                            <div className='mr-1'>3</div> <div className="small_spinner"></div>
+                            <div className='mr-1'>{data.toUpload}</div> <div className="small_spinner"></div>
                         </div>
                         <div className="d-f a-i j-cc mb-1">
                             <div className='mr-1 fw-1'>Data uploaded:</div>
-                            <div className='mr-1 '>2 <ImCheckmark color='green' className='ml-1' /> </div>
+                            <div className='mr-1 '>{data.uploaded} <ImCheckmark color='green' className='ml-1' /> </div>
                         </div>
 
                     </div>

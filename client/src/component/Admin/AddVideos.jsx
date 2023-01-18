@@ -21,8 +21,14 @@ function AddVideos() {
 
     const [videoForms, setVideoForms] = useState([])
     const [categories, setCategories] = useState([])
+    const [pro_load, setPro_load] = useState({
+        show: false,
+        total: 0,
+        toUpload: 0,
+        uploaded: 0
+    })
 
-    const errorNotify = () => toast.error("Error: Please check your internet connection")
+    const errorNotify = (message) => toast.error(message)
 
     useEffect(() => {
         const fetchCat = async () => {
@@ -34,7 +40,7 @@ function AddVideos() {
             } catch (err) {
                 console.log(err)
                 setSpinner(false)
-                errorNotify()
+                errorNotify("Error: Please check your internet connection")
             }
         }
         fetchCat()
@@ -50,7 +56,12 @@ function AddVideos() {
             title: '',
             video: {},
             clip: null,
-            categories: []
+            categories: [],
+            error: {
+                title: false,
+                video: false,
+                categories: false,
+            }
         }
         ])
         // setVideoForms([...videoForms, ()])
@@ -115,7 +126,7 @@ function AddVideos() {
         const file = event.target.files[0]
 
         if (videoForms[index].id === dataId) {
-            videoForms[index]['video'] = {cloudinary_id: '', url: file}
+            videoForms[index]['video'] = { cloudinary_id: '', url: file }
             setVideoForms([...videoForms])
             //  WHAT I DID HERE IS I CONVERTED THE VIDEO INTO BASE64, AND I CREATE A FUNCTION FOR IT CALLED toBase64 WHICH ALSO UPDATE setVideoForm()
             // toBase64(index, file, 'video')
@@ -140,32 +151,72 @@ function AddVideos() {
 
     const handleSubmit = async () => {
 
+        // ERROR HANDLING 
         for (let i = 0; i < videoForms.length; i++) {
-            const fileVideo = videoForms[i].video.url
+            videoForms[i].title === '' ? videoForms[i].error.title = true : videoForms[i].error.title = false
+            setVideoForms([...videoForms])
+            videoForms[i].video.url ? videoForms[i].error.video = false : videoForms[i].error.video = true
+            setVideoForms([...videoForms])
+            videoForms[i].categories.length < 1 ? videoForms[i].error.categories = true : videoForms[i].error.categories = false
+            setVideoForms([...videoForms])
 
-            const data = new FormData()
-            data.append('file', fileVideo)
-            data.append('upload_preset', 'video_uploads')
-
-
-
-            await axios.post("https://api.cloudinary.com/v1_1/ayomikun/auto/upload", data)
-                .then(res => {
-                    videoForms[i].video = {cloudinary_id: res.data.public_id, url: res.data.url}
-                    setVideoForms([...videoForms])
-
-                    try {
-                        const response = axios.post('http://localhost:3001/video', videoForms[i])
-                        console.log(response.data);
-                    } catch (err) {
-                        console.log({ message: `Data ${i}, Error saving to database(MongoDb)`, error: err })
-                    }
-
-                })
-                .catch((err) => {
-                    console.log({ message: `Data ${i}, Error saving to cloudinary`, error: err })
-                })
         }
+
+        // COMFIRMATION THAT THERE IS NO ERROR 
+        let confirm = true
+
+        for (let j = 0; j < videoForms.length; j++) {
+            if (videoForms[j].error.title === true || videoForms[j].error.categories === true || videoForms[j].error.video === true) {
+                confirm = false
+                errorNotify("Please make sure all data are inputed in every field")
+                break
+            }
+
+        }
+
+        console.log(confirm)
+
+        // SERVER SIDE LOGIC
+
+        if (confirm) {
+
+            for (let i = 0; i < videoForms.length; i++) {
+                setPro_load({...pro_load, show: true, total: videoForms.length, uploaded: i, toUpload: videoForms.length - i, })
+                const fileVideo = videoForms[i].video.url
+
+                const data = new FormData()
+                data.append('file', fileVideo)
+                data.append('upload_preset', 'video_uploads')
+
+                await axios.post("https://api.cloudinary.com/v1_1/ayomikun/auto/upload", data)
+                    .then(res => {
+                        videoForms[i].video = { cloudinary_id: res.data.public_id, url: res.data.url }
+                        setVideoForms([...videoForms])
+
+                        try {
+                            const response = axios.post('http://localhost:3001/video', videoForms[i])
+                            setPro_load({...pro_load, uploaded: pro_load.uploaded + 1, toUpload: pro_load.total - pro_load.uploaded, })
+                            console.log(response.data);
+                            
+                        } catch (err) {
+                            setPro_load({...pro_load, show: false, uploaded: 0, toUpload: 0, })
+                            errorNotify("Error: Please check your internet connection")
+                            console.log({ message: `Data ${i}, Error saving to database(MongoDb)`, error: err })
+                        }
+
+                    })
+                    .catch((err) => {
+                        setPro_load({...pro_load, show: false, uploaded: 0, toUpload: 0, })
+                         errorNotify("Error: Please check your internet connection")
+                        console.log({ message: `Data ${i}, Error saving to cloudinary`, error: err })
+                    })
+            }
+
+        }
+
+
+
+
 
         // const fileImg = videoForms[0].video
         // const data = new FormData()
@@ -216,8 +267,11 @@ function AddVideos() {
                     <Btn1 handleBtnClick={handleSubmit} text='Submit To Database' style={{ 'backgroundColor': 'green', 'fontSize': '15px' }} />
                 </div>
             </div>
-            {/* <Pre /> */}
             <ToastContainer />
+            {
+                pro_load.show && <Pre data={pro_load} />
+            }
+            
         </>
     )
 }

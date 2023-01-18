@@ -52,6 +52,10 @@
     font-size: 15px;
 }
 
+.input[error="true"] {
+    border: 1px solid tomato;
+}
+
 .input-wrap .input1 {
     width: 100%;
     padding: 8px 12px;
