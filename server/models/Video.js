@@ -2,13 +2,13 @@ const mongoose = require('mongoose')
 
 const VideoSchema = new mongoose.Schema({
     title: {
-        type : String,
+        type: String,
         required: true
     },
     video: {
         type: {
-            cloudinary_id: { type: String, required: true},
-            url: { type: String, required: true},
+            cloudinary_id: { type: String, required: true },
+            url: { type: String, required: true },
         },
         required: true,
     },
@@ -19,10 +19,8 @@ const VideoSchema = new mongoose.Schema({
     categories: {
         type: [
             {
-                category: {
-                    type: { title: {type: String, required: true}},
-                    required: true
-                } 
+                _id: { type: String, required: true },
+                title: { type: String, required: true }
             }
         ],
         required: true

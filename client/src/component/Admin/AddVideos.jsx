@@ -54,7 +54,7 @@ function AddVideos() {
             id: (+new Date * Math.random()).toString(36).substring(0, 10),
             // date:  day,
             title: '',
-            video: {},
+            video: null,
             clip: null,
             categories: [],
             error: {
@@ -89,19 +89,17 @@ function AddVideos() {
         const fff = videoForms.find(res => res.id === dataId)
         const index = (videoForms.findIndex(res => res === fff))
 
-        const catCheck = videoForms[index].categories.find(res => res.category._id === category._id);
+        const catCheck = videoForms[index].categories.find(res => res._id === category._id);
         const catIndex = videoForms[index].categories.findIndex(res => res === catCheck)
 
         if (videoForms[index].id === dataId && catCheck === undefined) {
-            videoForms[index].categories.push({ category })
+            videoForms[index].categories.push(category)
             setVideoForms([...videoForms])
         } else if (videoForms[index].id === dataId && catCheck !== undefined) {
             videoForms[index].categories.splice(catIndex, 1)
             setVideoForms([...videoForms])
         }
     }
-
-    console.log(videoForms);
 
     // const toBase64 = (index, file, vidOrClip) => {
     //     return new Promise((resolve, reject) => {
@@ -126,7 +124,7 @@ function AddVideos() {
         const file = event.target.files[0]
 
         if (videoForms[index].id === dataId) {
-            videoForms[index]['video'] = { cloudinary_id: '', url: file }
+            videoForms[index]['video'] = file
             setVideoForms([...videoForms])
             //  WHAT I DID HERE IS I CONVERTED THE VIDEO INTO BASE64, AND I CREATE A FUNCTION FOR IT CALLED toBase64 WHICH ALSO UPDATE setVideoForm()
             // toBase64(index, file, 'video')
@@ -155,7 +153,7 @@ function AddVideos() {
         for (let i = 0; i < videoForms.length; i++) {
             videoForms[i].title === '' ? videoForms[i].error.title = true : videoForms[i].error.title = false
             setVideoForms([...videoForms])
-            videoForms[i].video.url ? videoForms[i].error.video = false : videoForms[i].error.video = true
+            videoForms[i].video === null ? videoForms[i].error.video = true : videoForms[i].error.video = false
             setVideoForms([...videoForms])
             videoForms[i].categories.length < 1 ? videoForms[i].error.categories = true : videoForms[i].error.categories = false
             setVideoForms([...videoForms])
@@ -168,71 +166,83 @@ function AddVideos() {
         for (let j = 0; j < videoForms.length; j++) {
             if (videoForms[j].error.title === true || videoForms[j].error.categories === true || videoForms[j].error.video === true) {
                 confirm = false
-                errorNotify("Please make sure all data are inputed in every field")
+                errorNotify("Please make sure all data are inputed in")
                 break
             }
 
         }
-
-        console.log(confirm)
 
         // SERVER SIDE LOGIC
 
         if (confirm) {
 
             for (let i = 0; i < videoForms.length; i++) {
-                setPro_load({...pro_load, show: true, total: videoForms.length, uploaded: i, toUpload: videoForms.length - i, })
-                const fileVideo = videoForms[i].video.url
+                setPro_load({...pro_load, show: true, total: videoForms.length, uploaded: i, toUpload: videoForms.length - i})
 
                 const data = new FormData()
-                data.append('file', fileVideo)
-                data.append('upload_preset', 'video_uploads')
+                data.append('title', videoForms[i].title)
+                data.append('video', videoForms[i].video)
+                data.append('categories', JSON.stringify(videoForms[i].categories))
 
-                await axios.post("https://api.cloudinary.com/v1_1/ayomikun/auto/upload", data)
-                    .then(res => {
-                        videoForms[i].video = { cloudinary_id: res.data.public_id, url: res.data.url }
-                        setVideoForms([...videoForms])
-
-                        try {
-                            const response = axios.post('http://localhost:3001/video', videoForms[i])
-                            setPro_load({...pro_load, uploaded: pro_load.uploaded + 1, toUpload: pro_load.total - pro_load.uploaded, })
-                            console.log(response.data);
-                            
-                        } catch (err) {
-                            setPro_load({...pro_load, show: false, uploaded: 0, toUpload: 0, })
-                            errorNotify("Error: Please check your internet connection")
-                            console.log({ message: `Data ${i}, Error saving to database(MongoDb)`, error: err })
+                try {
+                    const response = await axios({
+                        method: 'post',
+                        url: "http://localhost:3001/video",
+                        data: data,
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
                         }
+                    })
 
-                    })
-                    .catch((err) => {
-                        setPro_load({...pro_load, show: false, uploaded: 0, toUpload: 0, })
-                         errorNotify("Error: Please check your internet connection")
-                        console.log({ message: `Data ${i}, Error saving to cloudinary`, error: err })
-                    })
+                    // console.log(response.data)
+                    
+                    // const vid = videoForms.find((res, index) => index === i)
+                    // const vidIndex = videoForms.findIndex(res => res === vid)
+                    // videoForms.splice(vidIndex, 1)
+                    // setVideoForms([...videoForms])
+                  
+                    // videoForms.splice(i, 1)
+                    // setVideoForms([...videoForms])
+                    setPro_load({ ...pro_load, uploaded: pro_load.uploaded + 1, toUpload: pro_load.total - pro_load.uploaded, })
+                    
+                } catch (err) {
+                    setPro_load({ ...pro_load, show: false, uploaded: 0, toUpload: 0, })
+                    errorNotify("Error: Please check your internet connection")
+                    console.log(err);
+                }
+
+
+                // const fileVideo = videoForms[i].video.url
+
+                // const data = new FormData()
+                // data.append('file', fileVideo)
+                // data.append('upload_preset', 'video_uploads')
+
+                // await axios.post("https://api.cloudinary.com/v1_1/ayomikun/auto/upload", data)
+                //     .then(res => {
+                //         videoForms[i].video = { cloudinary_id: res.data.public_id, url: res.data.url }
+                //         setVideoForms([...videoForms])
+
+                //         try {
+                //             const response = axios.post('http://localhost:3001/video', videoForms[i])
+                //             setPro_load({...pro_load, uploaded: pro_load.uploaded + 1, toUpload: pro_load.total - pro_load.uploaded, })
+                //             console.log(response.data);
+
+                //         } catch (err) {
+                //             setPro_load({...pro_load, show: false, uploaded: 0, toUpload: 0, })
+                //             errorNotify("Error: Please check your internet connection")
+                //             console.log({ message: `Data ${i}, Error saving to database(MongoDb)`, error: err })
+                //         }
+
+                //     })
+                //     .catch((err) => {
+                //         setPro_load({...pro_load, show: false, uploaded: 0, toUpload: 0, })
+                //          errorNotify("Error: Please check your internet connection")
+                //         console.log({ message: `Data ${i}, Error saving to cloudinary`, error: err })
+                //     })
             }
 
         }
-
-
-
-
-
-        // const fileImg = videoForms[0].video
-        // const data = new FormData()
-        // data.append('file', fileImg)
-        // data.append('upload_preset', 'video_uploads')
-
-        // try {
-        //     const response = await axios.post('http://localhost:3001/video', videoForms)
-        //     console.log(response.data)
-
-        //     //     const data = await axios.post('http://localhost:3001/video',)
-        //     //    const res = await axios.post("https://api.cloudinary.com/v1_1/ayomikun/video/upload", data)
-        //     //    console.log(await res.data)
-        // } catch (err) {
-        //     console.log(err);
-        // }
     }
 
     console.log(videoForms);
@@ -244,6 +254,9 @@ function AddVideos() {
 
     return (
         <>
+            {/* <div>
+                <img src="folder\\videos\\1674174674036---word.mp4" alt="Trying to display images" />
+            </div> */}
             {
                 videoForms.map((data, i) => (
                     <VideoComponent
@@ -271,7 +284,7 @@ function AddVideos() {
             {
                 pro_load.show && <Pre data={pro_load} />
             }
-            
+
         </>
     )
 }

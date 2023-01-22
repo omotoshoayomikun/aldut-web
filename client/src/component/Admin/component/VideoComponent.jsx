@@ -14,7 +14,7 @@ function VideoComponent({ data, RemoveVideoForm, onChange, value, handleBadge, c
                     <div className="files_ds  p-r">
 
                         {
-                            data.video.url ? (
+                            data.video !== null ? (
                                 <>
                                     <div className='d-ff j-cc a-i' style={{ border: '2px dotted grey', height: '120px', borderRadius: '20px' }}>
                                         Video Added
@@ -73,7 +73,7 @@ function VideoComponent({ data, RemoveVideoForm, onChange, value, handleBadge, c
                         {
                             categories.map((category) => (
                                 <Badge key={category._id} category={category.title} style={{ margin: '10px 10px' }}
-                                    select={data.categories.find((res) => (res.category._id === category._id)) ? "true" : "false"}
+                                    select={data.categories.find((res) => (res._id === category._id)) ? "true" : "false"}
                                     handleClick={() => handleBadge(data.id, category)}
                                 />
                             ))

@@ -6,14 +6,21 @@ import axios from 'axios'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { Spinner } from '../forms/Spinner'
+import { Pre } from '../forms/Modal'
 
 function AddNudes() {
   const [spinner, setSpinner] = useState(true)
 
   const [categories, setCategories] = useState([])
   const [imgForms, setImgForms] = useState([])
+  const [pro_load, setPro_load] = useState({
+    show: false,
+    total: 0,
+    toUpload: 0,
+    uploaded: 0
+  })
 
-  const errorNotify = () => toast.error("Error: Please check your internet connection")
+  const errorNotify = (message) => toast.error(message)
 
   useEffect(() => {
     const fetchCat = async () => {
@@ -25,7 +32,7 @@ function AddNudes() {
       } catch (err) {
         console.log(err)
         setSpinner(false)
-        errorNotify()
+        errorNotify("Error: Please check your internet connection")
       }
     }
     fetchCat()
@@ -37,7 +44,12 @@ function AddNudes() {
       id: (+new Date * Math.random()).toString(36).substring(0, 10),
       title: '',
       images: [],
-      categories: []
+      categories: [],
+      error: {
+        title: false,
+        images: false,
+        categories: false,
+      }
     }
     ])
   }
@@ -64,11 +76,11 @@ function AddNudes() {
     const fff = imgForms.find(res => res.id === dataId)
     const index = (imgForms.findIndex(res => res === fff))
 
-    const catCheck = imgForms[index].categories.find(res => res.category._id === category._id);
+    const catCheck = imgForms[index].categories.find(res => res._id === category._id);
     const catIndex = imgForms[index].categories.findIndex(res => res === catCheck)
 
     if (imgForms[index].id === dataId && catCheck === undefined) {
-      imgForms[index].categories.push({ category: category })
+      imgForms[index].categories.push(category)
       setImgForms([...imgForms])
     } else if (imgForms[index].id === dataId && catCheck !== undefined) {
       imgForms[index].categories.splice(catIndex, 1)
@@ -121,31 +133,90 @@ function AddNudes() {
 
 
   const handleSubmit = async () => {
+
+    // ERROR HANDLING 
     for (let i = 0; i < imgForms.length; i++) {
-      for (let j = 0; j < imgForms[i].images.length; j++) {
-        const imgData = new FormData()
-        imgData.append('file', imgForms[i].images[j])
-        imgData.append('upload_preset', 'uploads')
+      imgForms[i].title === '' ? imgForms[i].error.title = true : imgForms[i].error.title = false
+      setImgForms([...imgForms])
+      imgForms[i].images.length < 1 ? imgForms[i].error.images = true : imgForms[i].error.images = false
+      setImgForms([...imgForms])
+      imgForms[i].categories.length < 1 ? imgForms[i].error.categories = true : imgForms[i].error.categories = false
+      setImgForms([...imgForms])
 
-        await axios.post("https://api.cloudinary.com/v1_1/ayomikun/auto/upload", imgData)
-          .then(res => {
-            imgForms[i].images[j] = res.data.url
-            setImgForms([...imgForms])
-          })
-          .catch((err) => {
-            console.log({ message: `Images ${i}, Error saving to cloudinary`, error: err });
-          })
+    }
 
+
+    // COMFIRMATION THAT THERE IS NO ERROR 
+    let confirm = true
+
+    for (let j = 0; j < imgForms.length; j++) {
+      if (imgForms[j].error.title === true || imgForms[j].error.categories === true || imgForms[j].error.images === true) {
+        confirm = false
+        errorNotify("Please make sure all data are inputed in")
+        break
       }
 
-      try {
-        const response = await axios.post('http://localhost:3001/nude', imgForms[i])
-        console.log(response.data);
-      } catch (err) {
-        console.log({ message: `Data ${i}, Error saving to database(MongoDb)`, error: err });
+    }
+
+    // SERVER SIDE LOGIC
+
+    if (confirm) {
+
+      for (let i = 0; i < imgForms.length; i++) {
+        setPro_load({ ...pro_load, show: true, total: imgForms.length, uploaded: i, toUpload: imgForms.length - i })
+
+        const data = new FormData()
+        data.append('title', imgForms[i].title)
+        for (const single_file of imgForms[i].images) {
+          data.append('images', single_file)
+        }
+        data.append('categories', JSON.stringify(imgForms[i].categories))
+
+        try {
+          const response = await axios({
+            method: 'post',
+            url: "http://localhost:3001/nude",
+            data: data,
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          })
+          console.log(response.data)
+        } catch (err) {
+          console.log(err);
+        }
+
       }
     }
+
+
+    // for (let i = 0; i < imgForms.length; i++) {
+    //   for (let j = 0; j < imgForms[i].images.length; j++) {
+    //     const imgData = new FormData()
+    //     imgData.append('file', imgForms[i].images[j])
+    //     imgData.append('upload_preset', 'uploads')
+
+    //     await axios.post("https://api.cloudinary.com/v1_1/ayomikun/auto/upload", imgData)
+    //       .then(res => {
+    //         imgForms[i].images[j] = res.data.url
+    //         setImgForms([...imgForms])
+    //       })
+    //       .catch((err) => {
+    //         console.log({ message: `Images ${i}, Error saving to cloudinary`, error: err });
+    //       })
+
+    //   }
+
+    //   try {
+    //     const response = await axios.post('http://localhost:3001/nude', imgForms[i])
+    //     console.log(response.data);
+    //   } catch (err) {
+    //     console.log({ message: `Data ${i}, Error saving to database(MongoDb)`, error: err });
+    //   }
+    // }
   }
+
+  console.log(imgForms)
 
 
   if (spinner) {

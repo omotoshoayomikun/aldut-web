@@ -1,16 +1,24 @@
 const express = require('express')
 const router = express.Router()
+const cloudinary = require('../utils/cloudinary')
 // DATABASE MODEL
 const Video = require('../models/Video')
+const {VideoMulter} = require('../utils/multer')
 
 
-router.post('/', async (req, res) => {
+router.post('/', VideoMulter.single('video'), async (req, res) => {
     const { body } = req
+    const { file } = req
+
+    // console.log({...body, categories: JSON.parse( body.categories), video: file.filename})
     try {
-        const video = await Video.create(body)
+        const result = await cloudinary.uploader.upload(file.path, {upload_preset: 'video_uploads', resource_type: 'auto'})
+        let data = {...body, categories: JSON.parse( body.categories), video: {cloudinary_id: result.public_id, url: result.secure_url}}
+        const video = await Video.create(data)
         res.status(200).json(video)
     } catch (err) {
         res.status(404).send(err)
+        console.log(err)
     }
 
 })

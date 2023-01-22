@@ -4,7 +4,7 @@ export const Input = ({ label, style, value, onChange, error }) => {
     return (
         <div>
             <div className='p-r input-wrap'>
-                <input type="text" className='input' error={error} data value={value} style={style} onChange={onChange} placeholder=' ' />
+                <input type="text" className='input' error={error} value={value} style={style} onChange={onChange} placeholder=' ' />
                 <span className="floating-label">{label}</span>
             </div>
         </div>

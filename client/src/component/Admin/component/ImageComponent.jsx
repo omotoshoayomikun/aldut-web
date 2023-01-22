@@ -32,40 +32,40 @@ function ImageComponent({ RemoveImageForm, value, data, onChange, handleBadge, c
         <div className='flex1'>
           <div className="files_ds  p-r" style={{ height: '230px' }}>
             {
-              data.images.length > 0 ? (
-                <div className='p-r' style={{ overflow: 'hidden', height: '200px', width: '100%' }}>
-                  <div className="p-a ddsmd" style={{ left: '5px' }} onClick={() => handleArrow('left')}>
-                    <FaAngleLeft size='25px' color='#fff' cursor='pointer' />
-                  </div>
-                  <div className='d-f' style={{ overflow: 'hidden', height: '100%', width: `${100 * data.images.length - 1}%`, transform: `translateX(${-250 * index}px)` }}>
-                    {
-                      data.images.map((image, i) => (
-                        <div key={i} className='p-r' style={{ width: '100%', height: '100%' }}>
-                          <img src={image.name ? displayImage(image) : image} alt="" height='100%' width='250px' />
-                          <div className='p-a vcmdq' onClick={() => handleImgCancel(data.id, i)}>
-                            <MdCancelPresentation
-                              cursor='pointer'
-                              color='tomato'
-                              style={{
-                                // boxShadow: '0px 0px 4px #000',
-                                margin: '0px',
-                              }}
-                            />
-                          </div>
-                        </div>
-                      ))
-                    }
-                  </div>
-                  <div className="dur p-a d-f j-cc a-i"><GiPhotoCamera size='20px' style={{ marginBottom: '0px', marginRight: '5px' }} /> {data.images.length}</div>
-                  <div className="p-a ddsmd" style={{ right: '5px' }} onClick={() => handleArrow('right')}>
-                    <FaAngleRight size='25px' color='#fff' cursor='pointer' />
-                  </div>
-                </div>
-              )
-                :
+              // data.images.length > 0 ? (
+              //   <div className='p-r' style={{ overflow: 'hidden', height: '200px', width: '100%' }}>
+              //     <div className="p-a ddsmd" style={{ left: '5px' }} onClick={() => handleArrow('left')}>
+              //       <FaAngleLeft size='25px' color='#fff' cursor='pointer' />
+              //     </div>
+              //     <div className='d-f' style={{ overflow: 'hidden', height: '100%', width: `${100 * data.images.length - 1}%`, transform: `translateX(${-250 * index}px)` }}>
+              //       {
+              //         data.images.map((image, i) => (
+              //           <div key={i} className='p-r' style={{ width: '100%', height: '100%' }}>
+              //             <img src={image.name ? displayImage(image) : image} alt="" height='100%' width='250px' />
+              //             <div className='p-a vcmdq' onClick={() => handleImgCancel(data.id, i)}>
+              //               <MdCancelPresentation
+              //                 cursor='pointer'
+              //                 color='tomato'
+              //                 style={{
+              //                   // boxShadow: '0px 0px 4px #000',
+              //                   margin: '0px',
+              //                 }}
+              //               />
+              //             </div>
+              //           </div>
+              //         ))
+              //       }
+              //     </div>
+              //     <div className="dur p-a d-f j-cc a-i"><GiPhotoCamera size='20px' style={{ marginBottom: '0px', marginRight: '5px' }} /> {data.images.length}</div>
+              //     <div className="p-a ddsmd" style={{ right: '5px' }} onClick={() => handleArrow('right')}>
+              //       <FaAngleRight size='25px' color='#fff' cursor='pointer' />
+              //     </div>
+              //   </div>
+              // )
+                // :
                 (
                   <>
-                    <div className='d-ff j-cc a-i' style={{ border: '2px dotted grey', height: '200px', borderRadius: '20px' }}>
+                    <div className='d-ff j-cc a-i' style={{ border: data.error.images ? '2px dotted tomato' : '2px dotted grey', height: '200px', borderRadius: '20px' }}>
                       <input type="file" className='file_in' onChange={(e) => addImages(e, data.id)} multiple accept='image/png, image/jpeg, image/webp' />
                       <div>
                         <BiUpload size='30px' style={{ margin: '0px' }} />
@@ -81,6 +81,10 @@ function ImageComponent({ RemoveImageForm, value, data, onChange, handleBadge, c
               <input className='p-a' type="file" style={{ transform: 'scale(2,2)', opacity: '0', cursor: 'pointer' }} onChange={(e) => addImages(e, data.id)} multiple accept='image/png, image/jpeg, image/webp' />
             </button>
           </div>
+          {/* error display for images */}
+          {
+            data.error.images && <small style={{ color: 'tomato' }}>Please upload images</small>
+          }
           {/* <div className="files_ds  p-r mt-2" style={{ height: 'auto' }}>
             <input type="file" className='file_in' />
             <div className="vc2c d-f j-cc a-i"><BiUpload size='30px' style={{ margin: '0px', marginRight: '10px' }} /> Upload video thumbnails</div>
@@ -89,18 +93,26 @@ function ImageComponent({ RemoveImageForm, value, data, onChange, handleBadge, c
         <div className='' style={{ width: '100%' }}>
           <h3 className='mb-1' style={{ marginTop: '0px' }}>Add Title</h3>
           <div style={{ width: 'inherit' }}>
-            <Input data={data} value={value} onChange={(e) => onChange(e, data.id)} />
+            <Input data={data} value={value} error={data.error.title.toString()} onChange={(e) => onChange(e, data.id)} />
           </div>
+          {/* error display for title */}
+          {
+            data.error.title && <small style={{ color: 'tomato' }}>Please enter title for the image</small>
+          }
           <h3 className='mt-1 mb-1'>Select Categories</h3>
-          <div className="d-f" style={{ flexWrap: 'wrap', height: '160px', overflowX: 'hidden', overflowY: 'scroll' }} >
+          <div className="d-f" style={{ flexWrap: 'wrap', height: '160px', overflowX: 'hidden', overflowY: 'scroll', border: data.error.categories ? '1px solid tomato' : 'none', }} >
             {
               categories.map((category) => (
                 <Badge key={category._id} category={category.title} style={{ margin: '10px 10px' }}
-                  select={data.categories.find((res) => (res.category._id === category._id)) ? "true" : "false"}
+                  select={data.categories.find((res) => (res._id === category._id)) ? "true" : "false"}
                   handleClick={() => handleBadge(data.id, category)} />
               ))
             }
           </div>
+          {/* error display for categories */}
+          {
+            data.error.categories && <small style={{ color: 'tomato' }}>Please select categories for the image</small>
+          }
         </div>
         <div className="flex1-5">
           <Btn1 handleBtnClick={RemoveImageForm} text='Remove' />
