@@ -5,24 +5,32 @@ import { Input } from '../forms/Input'
 import { Badge } from '../forms/Badge'
 import { GiCheckMark } from 'react-icons/gi'
 import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import { ErrorModal, SuccessModal } from '../forms/Modal'
+import { ErrorModal, Pre, SuccessModal } from '../forms/Modal'
 import { Spinner } from '../forms/Spinner'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
 function UpdateVideo({ setDisplay, dataId }) {
-  
+
+  const navigate = useNavigate()
   const [spinner, setSpinner] = useState(true)
 
   const [data, setData] = useState({})
-  const [selectedVideo, setSelectedVideo] = useState('')
+  // const [selectedVideo, setSelectedVideo] = useState('')
   const [categories, setCategories] = useState([])
   const [deleteDis, setDeleteDis] = useState(false)
   const [succDis, setSuccDis] = useState(false)
+  const [pro_load, setPro_load] = useState({
+    show: false,
+    total: 0,
+    toUpload: 0,
+    uploaded: 0
+  })
 
-  
-  const errorNotify = () => toast.error("Error: Please check your internet connection")
+
+  const errorNotify = (message) => toast.error(message)
 
 
   useEffect(() => {
@@ -32,20 +40,22 @@ function UpdateVideo({ setDisplay, dataId }) {
         const res = await axios.get('http://localhost:3001/category')
         setCategories(res.data)
       } catch (err) {
+        errorNotify("Error: Please check your internet connection and reload")
         console.log(err)
       }
     }
     fetchCat()
 
     const fetchData = async () => {
+      setSpinner(true)
       try {
         const res = await axios.get(`http://localhost:3001/video/${dataId}`)
         setData(res.data)
-        setSelectedVideo(res.data?.video)
+        // setSelectedVideo(res.data?.video.url)
         setSpinner(false)
       } catch (err) {
         setSpinner(false)
-        errorNotify()
+        errorNotify("Error: Please check your internet connection and reload")
         console.log(err)
       }
     }
@@ -59,11 +69,11 @@ function UpdateVideo({ setDisplay, dataId }) {
 
   const handleBadge = (cat) => {
 
-    const catCheck = data.categories.find(res => res.category._id === cat._id);
+    const catCheck = data.categories.find(res => res._id === cat._id);
     const catIndex = data.categories.findIndex(res => res === catCheck)
 
     if (catCheck === undefined) {
-      data.categories.push({ category: cat })
+      data.categories.push(cat)
       setData({ ...data })
     } else if (catCheck !== undefined) {
       data.categories.splice(catIndex, 1)
@@ -71,14 +81,16 @@ function UpdateVideo({ setDisplay, dataId }) {
     }
   }
 
+  console.log(data)
+
   const handleChangeVid = (e) => {
     // IF AM GOING TO BE USING CLOUDINARY I WILL JUST ADD THE LINK AM GETTING BACK FROM THE API TO THE video IN setData
     // setData({ ...data, video: [e.target.files[0]] })
-    const image = e.target.files[0]
-    setSelectedVideo(image)
+    const video = e.target.files[0]
+    setData({ ...data, video: video })
+    // setSelectedVideo(video)
     // const disImage = URL.createObjectURL(image)
-    console.log(image);
-    // console.log(disImage);
+    // console.log(video);
   }
 
   const displayImage = (file) => {
@@ -87,21 +99,36 @@ function UpdateVideo({ setDisplay, dataId }) {
 
 
   const handleUpdate = async () => {
-    // const response = await axios.post()
-    //   .then(res => {
-    //     try {
-    //       const res = axios.post(`http://localhost:3001/video/${dataId}`, data)
-    //       console.log(res);
-    //     } catch (err) {
-    //       console.log(err)
-    //     }
-    //   }).catch((err) => {
-    //     console.log(err)
-    //   })
+    setPro_load({ ...pro_load, show: true, total: 1, uploaded: 0, toUpload: 0 })
+
+    const formData = new FormData()
+    formData.append('title', data.title)
+    !data.video.url && formData.append('video', data.video)
+    formData.append('categories', JSON.stringify(data.categories))
+
+    try {
+      const response = await axios({
+        url: `http://localhost:3001/video/${dataId}`,
+        method: 'put',
+        data: formData
+      })
+
+      setPro_load({ ...pro_load, uploaded: pro_load.uploaded + 1, toUpload: pro_load.total - pro_load.uploaded, })
+        setSuccDis(true)
+
+    } catch (err) {
+      console.log(err);
+      setPro_load({ ...pro_load, show: false, uploaded: 0, toUpload: 0, })
+      errorNotify("Error: Please check your internet connection and reload")
+    }
 
   }
 
-  if(spinner) {
+  const handleModelOk = () => {
+    navigate('/admin/managevideo')
+  }
+
+  if (spinner) {
     return <Spinner />
   }
 
@@ -113,7 +140,7 @@ function UpdateVideo({ setDisplay, dataId }) {
           <h3 className='mt-0'>Update Video</h3>
           <div className="d-f" style={{ gap: '20px' }}>
             <div className="flex2">
-              <video src={selectedVideo.name ? displayImage(selectedVideo) : selectedVideo} className='nnvid' height='410px' style={{ objectFit: 'cover', width: '100%', borderRadius: '9px' }} controls></video>
+              <video src={data.video.name ? displayImage(data.video) : data.video.url} className='nnvid' height='410px' style={{ objectFit: 'cover', width: '100%', borderRadius: '9px' }} controls></video>
               <div className="d-f j-cs">
                 <button className="btn2 mt-1 p-r" style={{ overflow: 'hidden', backgroundColor: 'tomato' }}>
                   Change Video
@@ -133,7 +160,7 @@ function UpdateVideo({ setDisplay, dataId }) {
                   categories.map((category) => (
                     <Badge key={category._id}
                       category={category.title} style={{ 'margin': '5px' }}
-                      select={data.categories.find((res) => (res.category._id === category._id)) ? "true" : "false"}
+                      select={data.categories.find((res) => (res._id === category._id)) ? "true" : "false"}
                       handleClick={() => handleBadge(category)} />
                   ))
                 }
@@ -150,10 +177,14 @@ function UpdateVideo({ setDisplay, dataId }) {
       }
       {
         succDis && (
-          <SuccessModal text='Nude updated successfully' setDisplay={setSuccDis} />
+          <SuccessModal text='Data updated successfully' handleOk={handleModelOk} />
         )
       }
       <ToastContainer />
+
+      {
+        pro_load.show && <Pre data={pro_load} />
+      }
     </>
   )
 }

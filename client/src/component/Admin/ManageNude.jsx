@@ -22,7 +22,7 @@ function ManageNude() {
   const [singleData, setSingleData] = useState('')
 
 
-  const errorNotify = () => toast.error("Error: Please check your internet connection and reload")
+  const errorNotify = (message) => toast.error(message)
 
 
   useEffect(() => {
@@ -33,7 +33,7 @@ function ManageNude() {
         setSpinner(false)
       } catch (err) {
         setSpinner(false)
-        errorNotify()
+        errorNotify("Error: Please check your internet connection and reload")
         console.log(err)
       }
     }
@@ -41,13 +41,28 @@ function ManageNude() {
   }, [])
 
 
-  const handleDelete = () => {
+  const handleDelete = (dataId) => {
+    // NOTE I ONLY NEEDED THE dataId ANDE THE DISPLAY ERR TRUE SO I CAN ACCESS THE dataId WHEN I NEEDED IT TO DELETE IN handleErrYes FUNCTION
+    setSingleData(dataId)
     setDeleteDis(true)
   }
 
+
+  const handleErrYes = async() => {
+    try {
+      const res = await axios.delete(`http://localhost:3001/nude/${singleData}`)
+      console.log(res)
+      setDeleteDis(false)
+     setDatas(datas.filter(data => data._id !== singleData))
+    } catch (err) {
+      errorNotify("Error: Please check your internet connection and reload")
+      console.log(err);
+    }
+  }
+
   const handleEdit = (dataId) => {
-    setEditDis(true)
     setSingleData(dataId)
+    setEditDis(true)
   }
 
   const handleUpdate = () => {
@@ -83,26 +98,19 @@ function ManageNude() {
                 <td>{data.title}</td>
                 <td className=''>
                   <div className='p-r' style={{ width: '70px', height: '70px', }}>
-                    <img src={data.images[0]} className='' style={{ width: '70px', height: '70px', borderRadius: '50%', }} />
+                    <img src={data.images[0].url} className='' style={{ width: '70px', height: '70px', borderRadius: '50%', }} />
                     <div className="dur p-a d-f j-cc a-i" style={{ margin: 'auto', left: '0px', right: '0px', top: '0px', bottom: '0px', height: '10px', }}>+{data.images.length - 1}</div>
-                    {/* {
-                      data.images.map((img, i) => (
-                        <img key={i} src={img}  className='admVideo mr-1' />
-                      ))
-                    } */}
-                    {/* <div className='p-a fs-2 d-f j-c a-i' style={{ width: '100%'}}>
-                      <div>4</div>
-                    </div> */}
                   </div>
                 </td>
                 <td>
                   {data.categories.map((nudeCat, i) => (
-                    <small key={nudeCat.category._id}>{nudeCat.category.title}, </small>
-                  ))}
+                    <small key={nudeCat._id}>{nudeCat.title}, </small>
+                  )).slice(0, 3).concat('...')
+                  }
                 </td>
                 <td>
                   <div className="d-f" style={{}}>
-                    <div onClick={handleDelete} style={{ cursor: 'pointer' }} className='mr-5'><FcCancel size='25px' className='cursor' /></div>
+                    <div onClick={() => handleDelete(data._id)} style={{ cursor: 'pointer' }} className='mr-5'><FcCancel size='25px' className='cursor' /></div>
                     <div onClick={() => handleEdit(data._id)} style={{ cursor: 'pointer' }}><MdEdit size='25px' color='green' /></div>
                   </div>
                 </td>
@@ -118,7 +126,7 @@ function ManageNude() {
       }
       {
         deleteDis && (
-          <ErrorModal text='Are you sure, you want to delete this Nude' setDisplay={setDeleteDis} />
+          <ErrorModal text='Are you sure, you want to delete this Nude' setDisplay={setDeleteDis} handleErrYes={handleErrYes}  />
         )
       }
       {

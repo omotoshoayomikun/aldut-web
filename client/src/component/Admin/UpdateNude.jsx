@@ -17,7 +17,7 @@ function UpdateNude({ setDisplay, dataId }) {
     const [categories, setCategories] = useState([])
     const [data, setData] = useState({})
 
-    const errorNotify = () => toast.error("Error: Please check your internet connection")
+    const errorNotify = (message) => toast.error(message)
 
     useEffect(() => {
 
@@ -25,15 +25,16 @@ function UpdateNude({ setDisplay, dataId }) {
             try {
                 const res = await axios.get('http://localhost:3001/category')
                 setCategories(res.data)
-        
+
             } catch (err) {
-            
+                errorNotify("Error: Please check your internet connection and reload")
                 console.log(err)
             }
         }
         fetchCat()
 
         const fetchData = async () => {
+            setSpinner(true)
             try {
                 const res = await axios.get(`http://localhost:3001/nude/${dataId}`)
                 setData(res.data)
@@ -41,7 +42,7 @@ function UpdateNude({ setDisplay, dataId }) {
                 //   setSelectedVideo(res.data?.video)
             } catch (err) {
                 setSpinner(false)
-                errorNotify()
+                errorNotify("Error: Please check your internet connection and reload")
                 console.log(err)
             }
         }
@@ -55,12 +56,12 @@ function UpdateNude({ setDisplay, dataId }) {
 
 
     const handleBadge = (cat) => {
-        const catCheck = data.categories.find(res => res.category._id === cat._id);
+        const catCheck = data.categories.find(res => res._id === cat._id);
         const catIndex = data.categories.findIndex(res => res === catCheck)
 
 
         if (catCheck === undefined) {
-            data.categories.push({ category: cat })
+            data.categories.push(cat)
             setData({ ...data })
         } else if (catCheck !== undefined) {
             data.categories.splice(catIndex, 1)
@@ -97,7 +98,7 @@ function UpdateNude({ setDisplay, dataId }) {
 
     return (
         <>
-            <div className="modalCont" style={{zIndex: '1000'}}>
+            <div className="modalCont" style={{ zIndex: '1000' }}>
                 <div className='modalWrap' onClick={() => setDisplay(false)}></div>
                 <div className="con__" style={{ height: '451px', }}>
                     <h3 className='mt-0'>Update Nude</h3>
@@ -105,7 +106,7 @@ function UpdateNude({ setDisplay, dataId }) {
                         <div className="flex2" style={{ overflowX: 'hidden' }}>
                             <div className='p-r'>
                                 <div>
-                                    <img src={data.images[0].name ? displayImage(data.images[0]) : data.images[0]} alt="" style={{ width: '100%', height: '290px', borderRadius: '9px' }} />
+                                    <img src={data.images[0].name ? displayImage(data.images[0]) : data.images[0].url} alt="" style={{ width: '100%', height: '290px', borderRadius: '9px' }} />
                                 </div>
                                 <div className='p-a' style={{ top: '10px', right: '10px', }} onClick={() => handleImgCancel(0)} >
                                     <MdCancel size='25px' cursor='pointer' color='tomato' style={{ boxShadow: '0px 0px 4px #000', backgroundColor: 'white' }} />
@@ -116,7 +117,7 @@ function UpdateNude({ setDisplay, dataId }) {
                                     data.images.map((image, i) => (
                                         <div key={i} className='p-r'>
                                             <div>
-                                                <img src={image.name ? displayImage(image) : image} alt="" style={{ width: '90px', height: '70px', borderRadius: '9px' }} />
+                                                <img src={image.name ? displayImage(image) : image.url} alt="" style={{ width: '90px', height: '70px', borderRadius: '9px' }} />
                                             </div>
                                             <div className='p-a' style={{ top: '5px', right: '5px', }} onClick={() => handleImgCancel(i)}>
                                                 <MdCancel size='15px'
@@ -153,7 +154,7 @@ function UpdateNude({ setDisplay, dataId }) {
                                         <Badge
                                             key={category._id}
                                             category={category.title} style={{ 'margin': '5px' }}
-                                            select={data.categories.find((res) => (res.category._id === category._id)) ? "true" : "false"}
+                                            select={data.categories.find((res) => (res._id === category._id)) ? "true" : "false"}
                                             handleClick={() => handleBadge(category)}
                                         />
                                     ))

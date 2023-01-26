@@ -181,8 +181,10 @@ function AddNudes() {
               'Content-Type': 'multipart/form-data'
             }
           })
-          console.log(response.data)
+          setPro_load({ ...pro_load, uploaded: pro_load.uploaded + 1, toUpload: pro_load.total - pro_load.uploaded, })
         } catch (err) {
+          setPro_load({ ...pro_load, show: false, uploaded: 0, toUpload: 0, })
+          errorNotify("Error: Please check your internet connection")
           console.log(err);
         }
 
@@ -250,6 +252,9 @@ function AddNudes() {
         </div>
       </div>
       <ToastContainer />
+      {
+        pro_load.show && <Pre data={pro_load} />
+      }
     </>
   )
 }

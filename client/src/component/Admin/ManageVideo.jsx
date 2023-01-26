@@ -4,12 +4,14 @@ import { MdEdit } from 'react-icons/md'
 import { ErrorModal, SuccessModal } from '../forms/Modal'
 import UpdateVideo from './UpdateVideo'
 import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { Spinner } from '../forms/Spinner'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
 function ManageVideo() {
+  const navigate = useNavigate()
 
   const [spinner, setSpinner] = useState(true)
 
@@ -19,7 +21,7 @@ function ManageVideo() {
   const [datas, setDatas] = useState([])
   const [singleData, setSingleData] = useState('')
 
-  const errorNotify = () => toast.error("Error: Please check your internet connection and reload")
+  const errorNotify = (message) => toast.error(message)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,21 +31,37 @@ function ManageVideo() {
         setSpinner(false)
       } catch (err) {
         setSpinner(false)
-        errorNotify()
+        errorNotify("Error: Please check your internet connection and reload")
         console.log(err)
       }
     }
     fetchData()
   }, [])
 
-  const handleDelete = () => {
+  const handleDelete = (dataId) => {
+    // NOTE I ONLY NEEDED THE dataId ANDE THE DISPLAY ERR TRUE SO I CAN ACCESS THE dataId WHEN I NEEDED IT TO DELETE IN handleErrYes FUNCTION
+    setSingleData(dataId)
     setDeleteDis(true)
+
+
+  }
+
+  const handleErrYes = async() => {
+    try {
+      const res = await axios.delete(`http://localhost:3001/video/${singleData}`)
+      console.log(res)
+      setDeleteDis(false)
+     setDatas(datas.filter(data => data._id !== singleData))
+    } catch (err) {
+      errorNotify("Error: Please check your internet connection and reload")
+      console.log(err);
+    }
   }
 
   const handleEdit = (dataId) => {
     // console.log(dataId)
-    setEditDis(true)
     setSingleData(dataId)
+    setEditDis(true)
   }
 
   if (spinner) {
@@ -71,18 +89,18 @@ function ManageVideo() {
                 <td></td>
                 <td>{data.title}</td>
                 <td className='p-r'>
-                  <video src={data.video} className='admVideo'></video>
+                  <video src={data.video.url} className='admVideo'></video>
                 </td>
                 <td>
                   {
                     data.categories.map((vidCat, i) => (
-                      <small key={vidCat.category._id}>{vidCat.category.title}, </small>
+                      <small key={vidCat._id}>{vidCat.title}, </small>
                     )).slice(0, 3).concat('...')
                   }
                 </td>
                 <td>
                   <div className="d-f" style={{}}>
-                    <div onClick={handleDelete} style={{ cursor: 'pointer' }} className='mr-5'><FcCancel size='25px' className='cursor' /></div>
+                    <div onClick={() => handleDelete(data._id)} style={{ cursor: 'pointer' }} className='mr-5'><FcCancel size='25px' className='cursor' /></div>
                     <div onClick={() => handleEdit(data._id)} style={{ cursor: 'pointer' }}><MdEdit size='25px' color='green' /></div>
                   </div>
                 </td>
@@ -98,14 +116,14 @@ function ManageVideo() {
       }
       {
         deleteDis && (
-          <ErrorModal text='Are you sure, you want to delete this Nude' setDisplay={setDeleteDis} />
+          <ErrorModal text='Are you sure, you want to delete this Nude' setDisplay={setDeleteDis} handleErrYes={handleErrYes} />
         )
       }
-      {
+      {/* {
         succDis && (
           <SuccessModal text='Nude updated successfully' setDisplay={setSuccDis} />
         )
-      }
+      } */}
       <ToastContainer />
     </>
   )

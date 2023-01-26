@@ -12,9 +12,9 @@ export function ErrorModal({ text, setDisplay, handleErrYes }) {
                     <FcCancel size='100px' />
                     <div className='mt-1 fs-6' style={{ textAlign: 'center', fontWeight: 'bolder' }}>{text} </div>
                     <div className='d-f mt-4'>
-                        <form className='mr-2'>
+                        <div className='mr-2'>
                             <Btn1 text='Yes' style={{ 'backgroundColor': 'green' }} handleBtnClick={handleErrYes} />
-                        </form>
+                        </div>
                         <div className='ml-3' onClick={() => setDisplay(false)}>
                             <Btn1 text='No' />
                         </div>

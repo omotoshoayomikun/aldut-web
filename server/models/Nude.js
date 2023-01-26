@@ -6,16 +6,19 @@ const NudeSchema = new mongoose.Schema({
         required: true,
     },
     images: {
-        type: [String],
+        type: [
+            {
+                cloudinary_id: {type: String, required: true},
+                url: {type: String, required: true}
+            }
+        ],
         required: true,
     },
     categories: {
         type: [
             {
-                category: {
-                    type: { title: { type: String, required: true } },
-                    required: true
-                }
+                _id: { type: String, required: true },
+                title: { type: String, required: true }
             }
         ],
         required: true

@@ -8,12 +8,13 @@ import UpdateCat from './UpdateCat'
 import { ErrorModal, SuccessModal } from '../forms/Modal'
 import axios from 'axios'
 import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { Spinner } from '../forms/Spinner'
 
 function AddCat() {
-
+  const navigate = useNavigate()
   const [spinner, setSpinner] = useState(true)
 
   const [categories, setCategories] = useState([])
@@ -26,7 +27,7 @@ function AddCat() {
   const [catId, setCatId] = useState('')
 
 
-  const errorNotify = () => toast.error("Error: Please check your internet connection and reload")
+  const errorNotify = (message) => toast.error(message)
 
   useEffect(() => {
     const fetchCat = async () => {
@@ -36,7 +37,7 @@ function AddCat() {
         setSpinner(false)
       } catch (err) {
         setSpinner(false)
-        errorNotify()
+        errorNotify("Error: Please check your internet connection and reload")
         console.log(err)
       }
     }
@@ -45,6 +46,7 @@ function AddCat() {
 
 
   const handleDeleteCat = (catId) => {
+    // NOTE I ONLY NEEDED THE dataId ANDE THE DISPLAY ERR TRUE SO I CAN ACCESS THE dataId WHEN I NEEDED IT TO DELETE IN handleDeleteCategory FUNCTION
     setCatId(catId)
     setDeleteDis(true)
   }
@@ -52,8 +54,10 @@ function AddCat() {
   const handleDeleteCategory = async () => {
     try {
       const res = await axios.delete(`http://localhost:3001/category/${catId}`)
-
+      setDeleteDis(false)
+      setCatLists(catLists.filter(data => data._id !== catId))
     } catch (err) {
+      errorNotify("Error: Please check your internet connection and reload")
       console.log(err)
     }
   }

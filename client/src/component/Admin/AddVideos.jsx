@@ -193,16 +193,6 @@ function AddVideos() {
                             'Content-Type': 'multipart/form-data'
                         }
                     })
-
-                    // console.log(response.data)
-                    
-                    // const vid = videoForms.find((res, index) => index === i)
-                    // const vidIndex = videoForms.findIndex(res => res === vid)
-                    // videoForms.splice(vidIndex, 1)
-                    // setVideoForms([...videoForms])
-                  
-                    // videoForms.splice(i, 1)
-                    // setVideoForms([...videoForms])
                     setPro_load({ ...pro_load, uploaded: pro_load.uploaded + 1, toUpload: pro_load.total - pro_load.uploaded, })
                     
                 } catch (err) {
