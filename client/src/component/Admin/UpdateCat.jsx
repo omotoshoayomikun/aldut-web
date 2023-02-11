@@ -6,6 +6,7 @@ import axios from 'axios'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { SuccessModal } from '../forms/Modal'
+import { baseUrl } from '../utils/url'
 
 function UpdateCat({ setDisplay, catId }) {
 
@@ -17,7 +18,7 @@ function UpdateCat({ setDisplay, catId }) {
     useEffect(() => {
         const fetchCat = async () => {
             try {
-                const res = await axios.get(`http://localhost:3001/category/${catId}`)
+                const res = await axios.get(`${baseUrl}/category/${catId}`)
                 setCat(res.data)
             } catch (err) {
                 console.log(err)
@@ -33,7 +34,7 @@ function UpdateCat({ setDisplay, catId }) {
 
     const handleUpdate = async () => {
         try {
-            const res = await axios.put(`http://localhost:3001/category/${catId}`, cat)
+            const res = await axios.put(`${baseUrl}/category/${catId}`, cat)
             setSuccDis(true)
         } catch (err) {
             console.log(err);

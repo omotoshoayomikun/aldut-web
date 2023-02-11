@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Input, InputWithKeyPress, MaterializeInput } from '../forms/Input'
+import { InputWithKeyPress } from '../forms/Input'
 import { Btn1 } from '../forms/Button'
 import { BadgeWithIcon } from '../forms/Badge'
 import { FcCancel } from 'react-icons/fc'
@@ -8,13 +8,14 @@ import UpdateCat from './UpdateCat'
 import { ErrorModal, SuccessModal } from '../forms/Modal'
 import axios from 'axios'
 import { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+// import { useNavigate } from 'react-router-dom'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { Spinner } from '../forms/Spinner'
+import { baseUrl } from '../utils/url'
 
 function AddCat() {
-  const navigate = useNavigate()
+  // const navigate = useNavigate()
   const [spinner, setSpinner] = useState(true)
 
   const [categories, setCategories] = useState([])
@@ -32,7 +33,7 @@ function AddCat() {
   useEffect(() => {
     const fetchCat = async () => {
       try {
-        const res = await axios.get('http://localhost:3001/category')
+        const res = await axios.get(`${baseUrl}/category`)
         setCatLists(res.data)
         setSpinner(false)
       } catch (err) {
@@ -53,7 +54,7 @@ function AddCat() {
 
   const handleDeleteCategory = async () => {
     try {
-      const res = await axios.delete(`http://localhost:3001/category/${catId}`)
+      await axios.delete(`${baseUrl}/category/${catId}`)
       setDeleteDis(false)
       setCatLists(catLists.filter(data => data._id !== catId))
     } catch (err) {
@@ -86,7 +87,7 @@ function AddCat() {
 
   const handleAddCat = async () => {
     try {
-      const res = await axios.post('http://localhost:3001/category', categories)
+      const res = await axios.post(`${baseUrl}/category`, categories)
       console.log(res.data);
     } catch (err) {
       console.log(err)

@@ -1,15 +1,14 @@
 import React, { useState } from 'react'
 import { FcCancel } from 'react-icons/fc'
 import { MdEdit } from 'react-icons/md'
-import UpdateVideo from './UpdateVideo'
 import { ErrorModal, SuccessModal } from '../forms/Modal'
 import UpdateNude from './UpdateNude'
-import { GiPhotoCamera } from 'react-icons/gi'
 import { useEffect } from 'react'
 import axios from 'axios'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { Spinner } from '../forms/Spinner'
+import { baseUrl } from '../utils/url'
 
 function ManageNude() {
 
@@ -28,7 +27,7 @@ function ManageNude() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get('http://localhost:3001/nude')
+        const res = await axios.get(`${baseUrl}/nude`)
         setDatas(res.data)
         setSpinner(false)
       } catch (err) {
@@ -50,7 +49,7 @@ function ManageNude() {
 
   const handleErrYes = async() => {
     try {
-      const res = await axios.delete(`http://localhost:3001/nude/${singleData}`)
+      const res = await axios.delete(`${baseUrl}/nude/${singleData}`)
       console.log(res)
       setDeleteDis(false)
      setDatas(datas.filter(data => data._id !== singleData))
@@ -65,10 +64,6 @@ function ManageNude() {
     setEditDis(true)
   }
 
-  const handleUpdate = () => {
-    setEditDis(false)
-    setSuccDis(true)
-  }
 
 
   if (spinner) {

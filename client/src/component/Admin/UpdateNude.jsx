@@ -9,6 +9,7 @@ import axios from 'axios'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { Spinner } from '../forms/Spinner'
+import { baseUrl } from '../utils/url'
 
 function UpdateNude({ setDisplay, dataId }) {
 
@@ -23,7 +24,7 @@ function UpdateNude({ setDisplay, dataId }) {
 
         const fetchCat = async () => {
             try {
-                const res = await axios.get('http://localhost:3001/category')
+                const res = await axios.get(`${baseUrl}/category`)
                 setCategories(res.data)
 
             } catch (err) {
@@ -36,7 +37,7 @@ function UpdateNude({ setDisplay, dataId }) {
         const fetchData = async () => {
             setSpinner(true)
             try {
-                const res = await axios.get(`http://localhost:3001/nude/${dataId}`)
+                const res = await axios.get(`${baseUrl}/nude/${dataId}`)
                 setData(res.data)
                 setSpinner(false)
                 //   setSelectedVideo(res.data?.video)
@@ -87,8 +88,31 @@ function UpdateNude({ setDisplay, dataId }) {
         setData({ ...data })
     }
 
-    const handleUpdate = () => {
+    const handleUpdate = async () => {
 
+        const formData = new FormData()
+        formData.append('title', data.title)
+        formData.append('categories', JSON.stringify(data.categories))
+
+        for (const single_file of data.images) {
+            if(single_file.url) {
+                formData.append('images',  JSON.stringify(single_file))
+            } else {
+                formData.append('images', single_file)
+            }
+        }
+
+        try {
+            const response = await axios({
+                url: `${baseUrl}/nude/${dataId}`,
+                method: 'put',
+                data: formData
+            })
+        } catch (err) {
+            console.log(err);
+        }
+
+        console.log(data)
     }
 
 
@@ -133,15 +157,27 @@ function UpdateNude({ setDisplay, dataId }) {
                                 }
                             </div>
                             <div className="d-f j-cs">
-                                <div>
+                                <button className="btn2 mt-1 p-r" style={{ overflow: 'hidden', backgroundColor: 'tomato' }}>
+                                    Add Nude
+                                    <input className='p-a maqz'
+                                        type="file"
+                                        style={{ transform: 'scale(2,2)', opacity: '0', cursor: 'pointer' }}
+                                        multiple
+                                        accept='image/png, image/jpeg, image/webp' onChange={(e) => handleAddImages(e)}
+                                    />
+                                </button>
+                                <button className="btn2 mt-1 p-r" style={{ overflow: 'hidden' }} onClick={handleUpdate}>
+                                    Update to database
+                                </button>
+                                {/* <div>
                                     <Btn1 text='Add Nude' />
                                     <input className='p-a maqz'
                                         type="file" style={{ transform: 'scale(2,2)', opacity: '0', cursor: 'pointer' }}
                                         multiple
                                         accept='image/png, image/jpeg, image/webp' onChange={(e) => handleAddImages(e)}
                                     />
-                                </div>
-                                <Btn1 text='Update to database' style={{ 'backgroundColor': 'green' }} handleBtnClick={handleUpdate} />
+                                </div> */}
+                                {/* <Btn1 text='Update to database' style={{ 'backgroundColor': 'green' }} handleBtnClick={handleUpdate} /> */}
                             </div>
                         </div>
                         <div className="flex1-5">

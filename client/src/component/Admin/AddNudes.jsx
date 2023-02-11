@@ -7,6 +7,7 @@ import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { Spinner } from '../forms/Spinner'
 import { Pre } from '../forms/Modal'
+import { baseUrl } from '../utils/url'
 
 function AddNudes() {
   const [spinner, setSpinner] = useState(true)
@@ -25,7 +26,7 @@ function AddNudes() {
   useEffect(() => {
     const fetchCat = async () => {
       try {
-        const res = await axios.get('http://localhost:3001/category')
+        const res = await axios.get(`${baseUrl}/category`)
         setCategories(res.data)
         setSpinner(false)
         // console.log(res.data);
@@ -173,9 +174,9 @@ function AddNudes() {
         data.append('categories', JSON.stringify(imgForms[i].categories))
 
         try {
-          const response = await axios({
+          await axios({
             method: 'post',
-            url: "http://localhost:3001/nude",
+            url: `${baseUrl}/nude`,
             data: data,
             headers: {
               'Content-Type': 'multipart/form-data'

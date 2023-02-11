@@ -1,7 +1,7 @@
 import React from 'react'
-import { useNavigate } from 'react-router-dom/dist'
+import { useNavigate, useParams } from 'react-router-dom/dist'
 import '../styles/Videos.css'
-import { Btn1, BtnWithIcon } from './forms/Button'
+import { BtnWithIcon } from './forms/Button'
 import { IoIosShareAlt } from 'react-icons/io'
 import { TiDownload } from 'react-icons/ti'
 import { BsThreeDots } from 'react-icons/bs'
@@ -9,62 +9,44 @@ import VideoCategory from './Video/VideoCategory'
 import RecommendedVid from './Video/RecommendedVid'
 import Comments from './Video/Comments'
 import { datas } from '../Logic/datas/ListOfVideos'
+import Share from './Video/Share'
+import { useState, useEffect } from 'react'
+import axios from 'axios'
+import { SpinnerText } from './forms/Spinner'
+import { baseUrl } from './utils/url'
 
 const Videos = () => {
 
+  const { videoId } = useParams()
+
+  const [share, setShare] = useState({ show: false, url: window.location.href })
+  const [video, setVideo] = useState({})
+  const [spinner, setSpinner] = useState({ video: true, categories: true })
+  const [page404, setPage404] = useState(false)
+
+  useEffect(() => {
+    const getVideo = async () => {
+      try {
+        const response = await axios.get(`${baseUrl}/video/${videoId}`)
+        setVideo(response.data)
+        setSpinner({ ...spinner, video: false })
+      } catch (err) {
+        setSpinner({ ...spinner, video: false })
+        setPage404(true)
+        console.log(err)
+      }
+    }
+    getVideo()
+  }, [])
+
+  // console.log(vid);
+
   const navigate = useNavigate()
 
-  // const datas = [
-  //   {
-  //     video: '/videos/1.mp4',
-  //     title: 'Married Woman Slept Off In Lovers House',
-  //     category: 'LEAK VIDEO'
-  //   },
-  //   {
-  //     video: '/videos/word.mp4',
-  //     title: 'Married Woman Slept Off In Lovers House',
-  //     category: 'LEAK VIDEO'
-  //   },
-  //   {
-  //     video: '/videos/word.mp4',
-  //     title: 'Married Woman Slept Off In Lovers House',
-  //     category: 'LEAK VIDEO'
-  //   },
-  //   {
-  //     video: '/videos/1.mp4',
-  //     title: 'Married Woman Slept Off In Lovers House',
-  //     category: 'LEAK VIDEO'
-  //   },
-  //   {
-  //     video: '/videos/word.mp4',
-  //     title: 'Married Woman Slept Off In Lovers House',
-  //     category: 'LEAK VIDEO'
-  //   },
-  //   {
-  //     video: '/videos/word.mp4',
-  //     title: 'Married Woman Slept Off In Lovers House',
-  //     category: 'LEAK VIDEO'
-  //   },
-  // ]
+  const handleShare = () => {
+    setShare({ ...share, show: true, url: window.location.href })
+  }
 
-  // const vidDetails = [
-  //   {
-  //     video: '/videos/1.mp4',
-  //     title: 'FIRST ANAL SEX WITH STEPBROTHER'
-  //   },
-  //   {
-  //     video: '/videos/1.mp4',
-  //     title: 'FIRST ANAL SEX WITH STEPBROTHER'
-  //   },
-  //   {
-  //     video: '/videos/1.mp4',
-  //     title: 'FIRST ANAL SEX WITH STEPBROTHER'
-  //   },
-  //   {
-  //     video: '/videos/1.mp4',
-  //     title: 'FIRST ANAL SEX WITH STEPBROTHER'
-  //   },
-  // ]
   const controlVid = (e, sort) => {
     sort === 'move' ? e.play() : e.pause()
     // console.log(parseInt(e.duration /60, 10))
@@ -81,60 +63,99 @@ const Videos = () => {
     navigate(`video/${params}`)
   }
 
-  return (
-    <div className='container'>
-      <div className="vidDis">
+  const downloadVideo = (url) => {
+    console.log(url)
+    fetch(url)
+      .then(response => response.blob())
+      .then(blob => {
+        const blobUrl = window.URL.createObjectURL(new Blob([blob]))
+        const aTag = document.createElement('a')
+        aTag.href = blobUrl;
+        const filename = url.split('/').pop()
+        aTag.setAttribute("download", filename)
+        document.body.appendChild(aTag)
+        aTag.click()
+        aTag.remove()
+      })
 
-        <div className="side1">
-          <video
-            src='/videos/1.mp4'
-            controls
-            style={{ objectFit: 'cover' }}
-            className='vid'
-          >
-          </video>
-          <div className="plgr j-cs a-i">
-            <h3 className='mt-1 mb-1' style={{ textTransform: 'uppercase' }}>FIRST ANAL SEX WITH STEPBROTHER</h3>
-            <div className='d-f' style={{ gap: '10px' }}>
-              <BtnWithIcon icon={<IoIosShareAlt size='20px' />} text='Share' />
-              <BtnWithIcon icon={<TiDownload size='20px' style={{ margin: '0px' }} />} text='Download' />
-              <BtnWithIcon icon={<BsThreeDots size='20px' style={{ margin: '0px' }} />} />
+  }
+
+  if (page404) {
+    return (
+      <>
+        <div className="d-f j-cc a-i" style={{height: 'calc(100vh - 63px)'}}>
+          No internet please <a href={window.location.href} style={{color: 'blue', margin: '0px 5px'}}> reload </a> the page
+        </div>
+      </>
+    )
+  }
+
+  return (
+    <>
+      <div className='container'>
+        <div className="vidDis">
+
+          <div className="side1">
+            {
+              spinner.video ? <div className='vid d-f j-cc a-i'>
+                <SpinnerText text='Loading ' />
+              </div> :
+                (
+                  <video
+                    src={video.video.url}
+                    controls
+                    style={{ objectFit: 'cover' }}
+                    className='vid'
+                  >
+                  </video>
+                )
+            }
+            <div className="plgr j-cs a-i">
+              <h3 className='mt-1 mb-1' style={{ textTransform: 'uppercase' }}>{video.title}</h3>
+              <div className='d-f' style={{ gap: '10px' }}>
+                <BtnWithIcon icon={<IoIosShareAlt size='20px' />} text='Share' handleBtnClick={handleShare} />
+                <BtnWithIcon icon={<TiDownload size='20px' style={{ margin: '0px' }} />} text='Download' handleBtnClick={() => downloadVideo(video.video.url)} />
+                <BtnWithIcon icon={<BsThreeDots size='20px' style={{ margin: '0px' }} />} />
+              </div>
+            </div>
+            {/* <div className='smalltxt'>{data.category}</div> */}
+            <div>
+              <Comments />
+            </div>
+
+            <div className="ttt mb-3 mt-3" style={{ fontSize: '20px', }}>Recommended Porn</div>
+            <RecommendedVid datas={datas} controlVid={controlVid} videoRouter={videoRouter} />
+
+            <div className="ttt mt-3" style={{ fontSize: '20px', }}>Categories</div>
+            <div className='d-f mt-2 mb-4' style={{ width: '100%', flexWrap: 'wrap' }}>
+              {
+                badges.map((badge, i) => (
+                  <div className="badge" style={{ margin: '8px 10px' }} key={i} >
+                    {badge}
+                  </div>
+                ))
+              }
+            </div>
+            <div className="p-r">
+              <hr />
+              <div className='moreVV'>VIEW MORE</div>
             </div>
           </div>
-          {/* <div className='smalltxt'>{data.category}</div> */}
-          <div>
-            <Comments />
-          </div>
 
-          <div className="ttt mb-3 mt-3" style={{ fontSize: '20px', }}>Recommended Porn</div>
-          <RecommendedVid datas={datas} controlVid={controlVid} videoRouter={videoRouter} />
-
-          <div className="ttt mt-3" style={{ fontSize: '20px', }}>Categories</div>
-          <div className='d-f mt-2 mb-4' style={{ width: '100%', flexWrap: 'wrap' }}>
-            {
-              badges.map((badge, i) => (
-                <div className="badge" style={{ margin: '8px 10px' }} key={i} >
-                  {badge}
-                </div>
-              ))
-            }
-          </div>
-          <div className="p-r">
-            <hr />
-            <div className='moreVV'>VIEW MORE</div>
-          </div>
-        </div>
-
-        <div className="side2">
-          <div>
-            <VideoCategory vidDetails={datas} controlVid={controlVid} title='Top Rated Porn' />
-          </div>
-          <div>
-            <VideoCategory vidDetails={datas} controlVid={controlVid} title='New Porn Video' />
+          <div className="side2">
+            <div>
+              <VideoCategory vidDetails={datas} controlVid={controlVid} title='Top Rated Porn' reference='top' />
+            </div>
+            <div>
+              <VideoCategory vidDetails={datas} controlVid={controlVid} title='New Porn Video' reference='new' />
+            </div>
           </div>
         </div>
       </div>
-    </div>
+      {
+        share.show && <Share url={share.url} setShare={setShare} />
+      }
+    </>
   )
 }
 

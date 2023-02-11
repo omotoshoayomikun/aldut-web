@@ -11,6 +11,7 @@ import { ErrorModal, Pre, SuccessModal } from '../forms/Modal'
 import { Spinner } from '../forms/Spinner'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import { baseUrl } from '../utils/url'
 
 function UpdateVideo({ setDisplay, dataId }) {
 
@@ -37,7 +38,7 @@ function UpdateVideo({ setDisplay, dataId }) {
 
     const fetchCat = async () => {
       try {
-        const res = await axios.get('http://localhost:3001/category')
+        const res = await axios.get(`${baseUrl}/category`)
         setCategories(res.data)
       } catch (err) {
         errorNotify("Error: Please check your internet connection and reload")
@@ -49,7 +50,7 @@ function UpdateVideo({ setDisplay, dataId }) {
     const fetchData = async () => {
       setSpinner(true)
       try {
-        const res = await axios.get(`http://localhost:3001/video/${dataId}`)
+        const res = await axios.get(`${baseUrl}/video/${dataId}`)
         setData(res.data)
         // setSelectedVideo(res.data?.video.url)
         setSpinner(false)
@@ -108,7 +109,7 @@ function UpdateVideo({ setDisplay, dataId }) {
 
     try {
       const response = await axios({
-        url: `http://localhost:3001/video/${dataId}`,
+        url: `${baseUrl}/video/${dataId}`,
         method: 'put',
         data: formData
       })

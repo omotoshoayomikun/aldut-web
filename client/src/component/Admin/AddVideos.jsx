@@ -1,19 +1,14 @@
 import React, { useEffect } from 'react'
 import { useState } from 'react'
-import { AiOutlinePlus } from 'react-icons/ai'
-import { BiUpload } from 'react-icons/bi'
-import Badge from '../forms/Badge'
-import Input from '../forms/Input'
-import Select from '../forms/Select'
 import VideoComponent from './component/VideoComponent'
 import AddButton from './component/AddButton'
 import { Btn1 } from '../forms/Button'
 import axios from 'axios'
-import { GiCondorEmblem } from 'react-icons/gi'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { Spinner } from '../forms/Spinner'
 import { Pre } from '../forms/Modal'
+import { baseUrl } from '../utils/url'
 
 function AddVideos() {
 
@@ -33,7 +28,7 @@ function AddVideos() {
     useEffect(() => {
         const fetchCat = async () => {
             try {
-                const res = await axios.get('http://localhost:3001/category')
+                const res = await axios.get(`${baseUrl}/category`)
                 setCategories(res.data)
                 setSpinner(false)
                 // console.log(res.data);
@@ -187,7 +182,7 @@ function AddVideos() {
                 try {
                     const response = await axios({
                         method: 'post',
-                        url: "http://localhost:3001/video",
+                        url: `${baseUrl}/video`,
                         data: data,
                         headers: {
                             'Content-Type': 'multipart/form-data'

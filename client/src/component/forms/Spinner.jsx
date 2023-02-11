@@ -12,3 +12,16 @@ export const Spinner = () => {
     </>
   )
 }
+
+export const SpinnerText = ({text}) => {
+  return (
+    <>
+        <div className="spinner_cont">
+          <div className="spinner">
+
+          </div>
+          <div className='spin_text'>{text}</div>
+        </div>
+    </>
+  )
+}

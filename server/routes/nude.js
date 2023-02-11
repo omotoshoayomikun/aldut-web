@@ -28,6 +28,37 @@ router.post('/', ImageMulter.array('images'), async (req, res) => {
     }
 })
 
+router.put('/:id', ImageMulter.array('images'), async (req, res) => {
+    const { params, body, files } = req
+
+    // console.log(files)
+    res.json(body)
+
+    let images = []
+    if (body.images) {
+        for (let i = 0; i < body.images.length; i++) {
+            images.push(JSON.parse(body.images[i]))
+
+        }
+
+
+        try {
+            const user = await Nude.findById(params.id)
+            let DeletedImages = user.images.filter((img) => img == images)
+            console.log(DeletedImages)
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
+    // try {
+
+    // } catch (err) {
+    //     res.status(404).send(err)
+    //     console.log(err)
+    // }
+})
+
 router.get('/', async (req, res) => {
     try {
         const nude = await Nude.find()

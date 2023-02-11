@@ -4,14 +4,34 @@ import { AiOutlineLeft, AiOutlineRight } from 'react-icons/ai'
 import { useNavigate } from 'react-router-dom'
 import '../styles/Home.css'
 import Pagnation from './forms/Pagnation'
-import { datas } from '../Logic/datas/ListOfVideos'
+// import { datas } from '../Logic/datas/ListOfVideos'
+import { useEffect } from 'react'
+import axios from 'axios'
+import { Spinner } from './forms/Spinner'
+import { baseUrl } from './utils/url'
 
 export const Home = () => {
   const navigate = useNavigate()
 
-  // const badd = useRef()
+  const [datas, setDatas] = useState([])
+  const [spinner, setSpinner] = useState(true)
 
-  // console.dir(badd.current)
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const response = await axios.get(`${baseUrl}/video`)
+        setDatas(response.data)
+        setSpinner(false)
+        
+      } catch (err) {
+        setSpinner(false)
+        console.log(err);
+      }
+    }
+
+    getData()
+  }, [])
+
 
 
   const [currentPage, setCurrentPage] = useState(1)
@@ -97,6 +117,11 @@ export const Home = () => {
     console.log(Math.floor((vid % 60)))
   }
 
+
+  if (spinner) {
+    return <Spinner />
+  }
+
   return (
     <>
       <div className="container" style={{ paddingTop: '0px' }}>
@@ -135,23 +160,23 @@ export const Home = () => {
 
         <div className="wrapper">
           {
-            currentPosts.map((data, i) => (
-              <div className="wrap" key={i}>
+            currentPosts.map((data) => (
+              <div className="wrap" key={data._id}>
                 <div className='p-r'>
                   <video
-                    src={data.video}
+                    src={data.video.url}
                     muted
                     ref={videoEl}
                     style={{ objectFit: 'cover' }}
                     className='video'
                     onMouseMove={(e) => controlVid(e.target, 'move')}
                     onMouseLeave={(e) => controlVid(e.target, 'leave')}
-                    onClick={() => videoRouter(i)}
+                    onClick={() => videoRouter(data._id)}
                   ></video>
                   <div className="dur">28:50</div>
                 </div>
                 <div className='bbtxt'>{data.title}</div>
-                <div className='smalltxt'>{data.category}</div>
+                <div className='smalltxt'>{data.categories[0].title}</div>
               </div>
             ))
           }

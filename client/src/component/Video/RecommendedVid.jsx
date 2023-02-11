@@ -1,6 +1,39 @@
-import React from 'react'
+import axios from 'axios'
+import React, { useState, useEffect } from 'react'
+import { baseUrl } from '../utils/url'
 
-function RecommendedVid({datas, controlVid, videoRouter}) {
+function RecommendedVid({ datas, controlVid, videoRouter }) {
+
+    const [video, setVideo] = useState({})
+    const [spinner, setspinner] = useState(true)
+
+
+    useEffect(() => {
+        const getVideo = async () => {
+            try {
+                const response = await axios.get(`${baseUrl}/video/`)
+                setVideo(response.data)
+                setspinner(false)
+            } catch (err) {
+                setspinner(false)
+                console.log(err);
+            }
+        }
+        // getVideo()
+    }, [])
+
+
+    // if (spinner) {
+    //     return (
+    //         <>
+    //             <div className="d-ff j-cc a-i mt-4">
+    //                 <div className="md_spinner"></div>
+    //                 <div className="spin_text fs-3">Loading...</div>
+    //             </div>
+    //         </>
+    //     )
+    // }
+
     return (
         <>
             <div className="wrapperX mt-5" style={{ width: '100%', }}>

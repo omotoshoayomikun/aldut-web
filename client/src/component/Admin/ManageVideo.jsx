@@ -1,23 +1,21 @@
 import React, { useState } from 'react'
 import { FcCancel } from 'react-icons/fc'
 import { MdEdit } from 'react-icons/md'
-import { ErrorModal, SuccessModal } from '../forms/Modal'
+import { ErrorModal } from '../forms/Modal'
 import UpdateVideo from './UpdateVideo'
 import { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { Spinner } from '../forms/Spinner'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import { baseUrl } from '../utils/url'
 
 function ManageVideo() {
-  const navigate = useNavigate()
 
   const [spinner, setSpinner] = useState(true)
 
   const [editDis, setEditDis] = useState(false)
   const [deleteDis, setDeleteDis] = useState(false)
-  const [succDis, setSuccDis] = useState(false)
   const [datas, setDatas] = useState([])
   const [singleData, setSingleData] = useState('')
 
@@ -26,7 +24,7 @@ function ManageVideo() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get('http://localhost:3001/video')
+        const res = await axios.get(`${baseUrl}/video`)
         setDatas(res.data)
         setSpinner(false)
       } catch (err) {
@@ -48,7 +46,7 @@ function ManageVideo() {
 
   const handleErrYes = async() => {
     try {
-      const res = await axios.delete(`http://localhost:3001/video/${singleData}`)
+      const res = await axios.delete(`${baseUrl}/video/${singleData}`)
       console.log(res)
       setDeleteDis(false)
      setDatas(datas.filter(data => data._id !== singleData))
